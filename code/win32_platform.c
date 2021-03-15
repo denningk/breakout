@@ -1,24 +1,24 @@
-typedef int b32;
-
-#define true 1
-#define false 0
-
-#define global_variable static
-#define internal static
-
-global_variable b32 running = true;
+#include "utils.c"
+#include "math.c"
 
 #include <windows.h>
 
-typedef struct RenderBuffer
+typedef struct render_buffer
 {
+    // Platform non-specific
     int width, height;
     u32 *pixels;
-    BITMAPINFO bitmap;
-} RenderBuffer;
+    
+    // Platform specific
+    BITMAPINFO bitmapInfo;
+} render_buffer;
+
+global_variable render_buffer RENDER_BUFFER;
+
+#include "software_renderer.c" 
 
 internal LRESULT 
-CALLBACK WindowCallback(HWND window,UINT message,WPARAM wParam, LPARAM lParam)
+CALLBACK WindowCallback(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
     LRESULT result = 0;
     
@@ -27,6 +27,29 @@ CALLBACK WindowCallback(HWND window,UINT message,WPARAM wParam, LPARAM lParam)
         case WM_CLOSE:
         case WM_DESTROY: {
             running = false;
+        } break;
+        
+        case WM_SIZE: {
+            RECT rect;
+            GetWindowRect(window, &rect);
+            RENDER_BUFFER.width = rect.right - rect.left;
+            RENDER_BUFFER.height = rect.bottom - rect.top;
+            
+            if (RENDER_BUFFER.pixels)
+            {
+                VirtualFree(RENDER_BUFFER.pixels, 0, MEM_RELEASE);
+            }
+            
+            RENDER_BUFFER.pixels = VirtualAlloc(0, sizeof(u32) * RENDER_BUFFER.width * RENDER_BUFFER.height,
+                                                MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+            
+            RENDER_BUFFER.bitmapInfo.bmiHeader.biSize = sizeof(RENDER_BUFFER.bitmapInfo.bmiHeader);
+            RENDER_BUFFER.bitmapInfo.bmiHeader.biWidth = RENDER_BUFFER.width;
+            RENDER_BUFFER.bitmapInfo.bmiHeader.biHeight = RENDER_BUFFER.height;
+            RENDER_BUFFER.bitmapInfo.bmiHeader.biPlanes = 1;
+            RENDER_BUFFER.bitmapInfo.bmiHeader.biBitCount = 32;
+            RENDER_BUFFER.bitmapInfo.bmiHeader.biCompression = BI_RGB;
+            
         } break;
         
         default: {
@@ -58,18 +81,29 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         MSG message;
         while (PeekMessageA(&message, window, 0, 0, PM_REMOVE))
         {
-            TranslateMessage(&message);
-            DispatchMessage(&message);
+            switch (message.message)
+            {
+                case WM_KEYDOWN:
+                case WM_KEYUP:
+                {
+                    
+                } break;
+                
+                default: {
+                    TranslateMessage(&message);
+                    DispatchMessage(&message);
+                }
+            }
         }
         
-        
         // Simulation
-        int width, height;
-        void *memory;
-        BITMAPINFO bitmapInfo;
-        StretchDIBits(hdc, 0, 0, width, height,
-                      0, 0, width, height, memory,
-                      &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+        ClearScreen(0x551100);
+        
+        DrawRectInPixels(20, 20, 50, 50, 0xffff00);
+        
         // Render
+        StretchDIBits(hdc, 0, 0, RENDER_BUFFER.width, RENDER_BUFFER.height,
+                      0, 0, RENDER_BUFFER.width, RENDER_BUFFER.height, RENDER_BUFFER.pixels, &RENDER_BUFFER.bitmapInfo,
+                      DIB_RGB_COLORS, SRCCOPY);
     }
 }
