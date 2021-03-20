@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "cl.exe - Build and debug active file",
+            "name": "(Windows) Debug - Build and Run Project",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/win32_platform.exe",
+            "program": "${workspaceFolder}\\build\\win32_platform.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "externalTerminal",
-            "preLaunchTask": "C/C++: cl.exe build active file"
+            "preLaunchTask": "Debug - Build Project"
         }
     ]
 }

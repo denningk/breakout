@@ -4,7 +4,10 @@ pushd ..\build
 del *.pdb > NUL 2> NUL
 echo WAITING FOR PDB > lock.tmp
 
-clang -FC ..\code\win32_platform.c -g -o win32_platform.exe -luser32 -lgdi32
+SET compilerFlags=-g -Wvarargs -Wall -Werror
+SET linkerFlags=-luser32 -lgdi32
+
+clang ..\code\win32_platform.c %compilerFlags% -o win32_platform.exe %linkerFlags%
 
 del *.ilk
 del lock.tmp

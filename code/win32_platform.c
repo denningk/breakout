@@ -101,7 +101,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         // Simulation
         ClearScreen(0x551100);
         
-        DrawRectInPixels(20, 20, 50, 50, 0x000000);
+        DrawRectInPixels(20, 20, 50, 50, 0xffff00);
         
         // Render
         StretchDIBits(hdc, 0, 0, RENDER_BUFFER.width, RENDER_BUFFER.height,
