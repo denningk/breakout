@@ -83,6 +83,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         {
             switch (message.message)
             {
+                case WM_SYSKEYDOWN:
+                case WM_SYSKEYUP:
                 case WM_KEYDOWN:
                 case WM_KEYUP:
                 {
@@ -99,7 +101,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         // Simulation
         ClearScreen(0x551100);
         
-        DrawRectInPixels(20, 20, 50, 50, 0xffff00);
+        DrawRectInPixels(20, 20, 50, 50, 0x000000);
         
         // Render
         StretchDIBits(hdc, 0, 0, RENDER_BUFFER.width, RENDER_BUFFER.height,
