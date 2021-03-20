@@ -5,11 +5,11 @@ Clamp(i32 min, i32 val, i32 max)
     {
         return min;
     }
-    
+
     if (val > max)
     {
         return max;
     }
-    
+
     return val;
 }
