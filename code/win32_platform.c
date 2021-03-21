@@ -17,9 +17,7 @@ global_variable render_buffer RENDER_BUFFER;
 
 #include "software_renderer.c"
 
-internal LRESULT
-    CALLBACK
-    WindowCallback(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+internal LRESULT CALLBACK WindowCallback(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
     LRESULT result = 0;
 
@@ -80,6 +78,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
                                   1280, 720, 0, 0, hInstance, 0);
     HDC hdc = GetDC(window);
 
+    b32 character = false;
+
     while (running)
     {
         // Input
@@ -93,6 +93,14 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
             case WM_KEYDOWN:
             case WM_KEYUP:
             {
+                u32 vkCode = (u32)message.wParam;
+                b32 wasDown = ((message.lParam & (1 << 30)) != 0);
+                b32 isDown = ((message.lParam & (1 << 31)) == 0);
+
+                if (vkCode == VK_LEFT)
+                {
+                    character = true;
+                }
             }
             break;
 
@@ -106,8 +114,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
         // Simulation
         ClearScreen(0x551100);
-
-        DrawRectInPixels(20, 20, 50, 50, 0xffff00);
+        if (character)
+        {
+            DrawRectInPixels(20, 20, 50, 50, 0xffff00);
+        }
 
         // Render
         StretchDIBits(hdc, 0, 0, RENDER_BUFFER.width, RENDER_BUFFER.height,
