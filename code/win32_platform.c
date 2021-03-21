@@ -105,6 +105,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         }
 
         // Simulation
+        SimulateGame();
+
         ClearScreen(0x551100);
 
         DrawRectInPixels(20, 20, 50, 50, 0xffff00);
