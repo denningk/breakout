@@ -1,9 +1,11 @@
 #include "utils.c"
 #include "math.c"
 
+#include "platform_common.c"
+
 #include <windows.h>
 
-typedef struct render_buffer
+typedef struct RenderBuffer
 {
     // Platform non-specific
     int width, height;
@@ -11,11 +13,12 @@ typedef struct render_buffer
 
     // Platform specific
     BITMAPINFO bitmapInfo;
-} render_buffer;
+} RenderBuffer;
 
-global_variable render_buffer RENDER_BUFFER;
+global_variable RenderBuffer RENDER_BUFFER;
 
 #include "software_renderer.c"
+#include "game.c"
 
 internal LRESULT CALLBACK WindowCallback(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -78,11 +81,16 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
                                   1280, 720, 0, 0, hInstance, 0);
     HDC hdc = GetDC(window);
 
-    b32 character = false;
+    Input input = {0};
 
     while (running)
     {
         // Input
+        for (int i = 0; i < BUTTON_COUNT; i++)
+        {
+            input.buttons[i].changed = false;
+        }
+
         MSG message;
         while (PeekMessageA(&message, window, 0, 0, PM_REMOVE))
         {
@@ -99,7 +107,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
                 if (vkCode == VK_LEFT)
                 {
-                    character = true;
+                    input.buttons[BUTTON_LEFT].changed = isDown != input.buttons[BUTTON_LEFT].isDown;
+                    input.buttons[BUTTON_LEFT].isDown = isDown;
                 }
             }
             break;
@@ -113,13 +122,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         }
 
         // Simulation
-        SimulateGame();
-
-        ClearScreen(0x551100);
-        if (character)
-        {
-            DrawRectInPixels(20, 20, 50, 50, 0xffff00);
-        }
+        SimulateGame(&input);
 
         // Render
         StretchDIBits(hdc, 0, 0, RENDER_BUFFER.width, RENDER_BUFFER.height,
