@@ -65,6 +65,12 @@ internal LRESULT CALLBACK WindowCallback(HWND window, UINT message, WPARAM wPara
     return result;
 }
 
+internal void WinProcessKeyboardMessage(Input *currInput, ButtonType button, b32 isDown)
+{
+    currInput->buttons[button].changed = isDown != currInput->buttons[button].isDown;
+    currInput->buttons[button].isDown = isDown;
+}
+
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     WNDCLASSA windowClass = {0};
@@ -107,8 +113,19 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
                 if (vkCode == VK_LEFT)
                 {
-                    input.buttons[BUTTON_LEFT].changed = isDown != input.buttons[BUTTON_LEFT].isDown;
-                    input.buttons[BUTTON_LEFT].isDown = isDown;
+                    WinProcessKeyboardMessage(&input, BUTTON_LEFT, isDown);
+                }
+                else if (vkCode == VK_RIGHT)
+                {
+                    WinProcessKeyboardMessage(&input, BUTTON_RIGHT, isDown);
+                }
+                else if (vkCode == VK_UP)
+                {
+                    WinProcessKeyboardMessage(&input, BUTTON_UP, isDown);
+                }
+                else if (vkCode == VK_DOWN)
+                {
+                    WinProcessKeyboardMessage(&input, BUTTON_DOWN, isDown);
                 }
             }
             break;
